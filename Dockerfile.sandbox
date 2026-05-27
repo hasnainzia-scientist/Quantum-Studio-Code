@@ -1,0 +1,20 @@
+# C++ Sandbox Environment (GCC)
+# Used to securely compile and execute arbitrary user code
+
+FROM gcc:12.2.0
+
+# Create a restricted user so code isn't run as root
+RUN useradd -m -s /bin/bash sandboxuser
+
+# Create the working directory and configure ownership
+RUN mkdir -p /sandbox && chown -R sandboxuser:sandboxuser /sandbox
+
+# Restrict the workdir permissions (drwxr-xr-x)
+RUN chmod 755 /sandbox
+
+# Switch to non-root user
+USER sandboxuser
+
+# The entrypoint will be overwritten by the server running:
+# docker run -v /temp:/sandbox gcc:12.2.0 g++ main.cpp -o main
+WORKDIR /sandbox
